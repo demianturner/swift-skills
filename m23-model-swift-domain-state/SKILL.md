@@ -1,6 +1,8 @@
 ---
-name: model-swift-domain-state
+name: m23-model-swift-domain-state
 description: Refactor related Swift booleans and optionals into domain enums when their combinations represent mutually exclusive operation states. Use for state modelling and reducer transitions, not routine boolean cleanup.
+metadata:
+  short-description: Model related Swift state with enums
 ---
 
 # Model Swift domain state

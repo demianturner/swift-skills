@@ -1,6 +1,8 @@
 ---
-name: avoid-task-detached
+name: m23-avoid-task-detached
 description: Refactor Task.detached used for CPU work in Swift 6.2+ TCA effects. Use when preserving effect cancellation and actor isolation matters; do not apply to intentionally independent tasks.
+metadata:
+  short-description: Replace detached work in TCA effects
 ---
 
 # Avoid unnecessary `Task.detached` in TCA effects

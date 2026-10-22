@@ -1,6 +1,8 @@
 ---
-name: organise-tca-modules
+name: m23-organise-tca-modules
 description: Organise files within a Swift Package TCA feature module by responsibility. Use when placing or refactoring module files, without changing package boundaries merely to match a folder pattern.
+metadata:
+  short-description: Organise TCA files by responsibility
 ---
 
 # Organise TCA modules
