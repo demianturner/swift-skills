@@ -34,6 +34,22 @@ Update:
 npx --yes skills update m23-organise-tca-modules --project --yes
 ```
 
+## Extract a Swift module
+
+[m23-extract-swift-module](m23-extract-swift-module/SKILL.md) decides whether a new target or package earns its permanent cost, then covers cohesion, coupling, dependency direction, public API, static versus dynamic linking, testability, and build time. It also names the over-modularisation symptoms to fix, and keeps types under about 50 lines grouped with their relatives instead of alone in files or modules.
+
+Install:
+
+```sh
+npx --yes skills add https://github.com/demianturner/swift-skills --skill m23-extract-swift-module --agent codex --yes
+```
+
+Update:
+
+```sh
+npx --yes skills update m23-extract-swift-module --project --yes
+```
+
 ## Avoid unnecessary detached tasks
 
 [m23-avoid-task-detached](m23-avoid-task-detached/SKILL.md) guides refactors where a TCA effect uses `Task.detached` only to move CPU-intensive work off the main actor. It favors an async dependency operation with explicit isolation, while preserving cancellation and leaving intentionally independent tasks alone.
