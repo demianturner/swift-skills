@@ -49,3 +49,19 @@ Update:
 ```sh
 npx --yes skills update m23-avoid-task-detached --project --yes
 ```
+
+## Resolve Xcode package state
+
+[m23-resolve-xcode-package-state](m23-resolve-xcode-package-state/SKILL.md) diagnoses package declarations, destinations and permission failures before escalating. It resolves dependencies when needed, verifies the smallest affected target and avoids routine resets, cleans and full app builds.
+
+Install:
+
+```sh
+npx --yes skills add https://github.com/demianturner/swift-skills --skill m23-resolve-xcode-package-state --agent codex --yes
+```
+
+Update:
+
+```sh
+npx --yes skills update m23-resolve-xcode-package-state --project --yes
+```
