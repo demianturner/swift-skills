@@ -1,6 +1,6 @@
 ---
 name: m23-extract-swift-module
-description: Decide whether and how to extract Swift code into a separate module or Swift package. Use for module boundary design, package splits, dependency direction, public API and linking choices, and reviews that propose new targets. Not for routine file moves inside one target.
+description: Decide whether and how to extract Swift code into a separate module or Swift package, including cleanup of temporary @_exported and typealias bridges. Use for module boundary design, package splits, dependency direction, public API and linking choices, and reviews that propose new targets. Not for routine file moves inside one target.
 metadata:
   short-description: Extract Swift modules with a proven boundary
 ---
@@ -75,10 +75,43 @@ Everything `public` is a contract.
 - Expose values, small protocols, and one entry-point type — not mutable shared state, caches, or concrete backends.
 - Keep the seam testable: injected `Clock`, `UUID` and clients instead of hidden globals or raw `UUID()`.
 - State concurrency as part of the contract: `Sendable` conformances, the isolation of each entry point, and whether calls are reentrant or cancellable.
-- Avoid `@_exported import` outside a deliberate umbrella module, and avoid `@frozen` unless you ship a stable binary ABI.
+- Avoid `@_exported import` outside a documented umbrella module, and avoid `@frozen` unless you ship a stable binary ABI. See Remove migration scaffolding.
 - Avoid single-implementation protocols exposed publicly. Keep the concrete type until a second implementation or a test seam exists.
 
 Check: the public API should read like a short description of the module. If it reads like a dump of internals, shrink it.
+
+## Remove migration scaffolding
+
+An extraction compiles long before it is finished, because Swift lets old code keep working through shims. Each shim is unfinished work that looks like a design decision.
+
+| Shim | Why it appears | Why it must go |
+| --- | --- | --- |
+| `@_exported import Module` | consumers keep their old import and still see the moved types | hides the real dependency, hands importers names they never imported, and makes cleanup a breaking change later |
+| `typealias Old = Module.Type`, including `public typealias` | call sites keep the old spelling while the type moves | leaves two names for one type, so readers cannot tell who owns it and searches find both |
+| `public extension` on another module's type that only forwards into the new module | keeps a helper at its old address | splits one responsibility across two modules and keeps the old edge alive |
+| a target whose only content is re-exports or aliases | avoids touching imports during the move | adds a build-graph node and a public surface with no capability of its own |
+
+`@_exported` is an underscored, undocumented attribute. Treat it as a migration tool, not a design tool: the compiler may change it, and it communicates an intent the module graph does not record.
+
+Rules:
+
+- Record the removal point when you add a shim, in the same change: which files carry it and what will replace it. Put it in the task list or the pull request description, not in a permanent document.
+- Remove shims in the change that completes the move. "Later" is how they survive for years.
+- Resolve each hit by editing the call sites: import the owning module, use the real type name, delete the alias or re-export.
+- Test code counts. A `typealias` in a fixture that exists only to avoid renaming test call sites is scaffolding too.
+- Keep a re-export only when re-exporting is the module's documented purpose, such as an umbrella or compatibility module named as such in the module map or README. Documentation and intent are the difference between a façade and a leftover.
+- Never let a shim become the public API by default. If consumers end up importing the shim's module for a type it does not own, the boundary has failed.
+
+Before calling the extraction complete, search for every shim and account for each hit:
+
+```sh
+rg -n --glob '*.swift' '^\s*@_exported import' .
+rg -n --glob '*.swift' '^\s*(@?public |@?package )?typealias\s+\w+\s*=\s*\w+\.' .
+```
+
+The second pattern catches aliases qualified with a module name, which is the shape a move produces. A bare `typealias` in the same module is ordinary Swift, not scaffolding.
+
+Then open the manifest for each target those results point at and confirm the target has a capability of its own. Do not dismiss a hit as "probably fine" without stating why it stays.
 
 ## Choose linking mode
 
@@ -119,7 +152,7 @@ Repairs: merge sibling micro-modules into one capability module, delete pass-thr
 5. Move code without behaviour changes. Widen access only as the compiler demands. Keep small types with their relatives.
 6. Move the tests and import the new module. Delete duplicated helpers instead of copying them.
 7. If the manifest changed, resolve once, wait, then build the smallest affected scheme and run the moved tests.
-8. Report what moved, what became public and why, and what remains duplicated. Do not call the boundary validated without a successful build of the affected target.
+8. Report what moved, what became public and why, what remains duplicated, and which shims were added or removed. State any re-export or alias that survives and why it is permanent. Do not call the boundary validated without a successful build of the affected target.
 
 ## References
 

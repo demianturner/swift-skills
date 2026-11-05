@@ -36,7 +36,7 @@ npx --yes skills update m23-organise-tca-modules --project --yes
 
 ## Extract a Swift module
 
-[m23-extract-swift-module](m23-extract-swift-module/SKILL.md) decides whether a new target or package earns its permanent cost, then covers cohesion, coupling, dependency direction, public API, static versus dynamic linking, testability, and build time. It also names the over-modularisation symptoms to fix, and keeps types under about 50 lines grouped with their relatives instead of alone in files or modules.
+[m23-extract-swift-module](m23-extract-swift-module/SKILL.md) decides whether a new target or package earns its permanent cost, then covers cohesion, coupling, dependency direction, public API, static versus dynamic linking, testability, and build time. It also names the over-modularisation symptoms to fix, keeps types under about 50 lines grouped with their relatives instead of alone in files or modules, and requires the temporary `@_exported` imports and `typealias` bridges used during a move to be deleted once the extraction is complete.
 
 Install:
 
