@@ -68,7 +68,7 @@ npx --yes skills update m23-avoid-task-detached --project --yes
 
 ## Resolve Xcode package state
 
-[m23-resolve-xcode-package-state](m23-resolve-xcode-package-state/SKILL.md) diagnoses package declarations, destinations and permission failures before escalating. It resolves dependencies when needed, verifies the smallest affected target and avoids routine resets, cleans and full app builds.
+[m23-resolve-xcode-package-state](m23-resolve-xcode-package-state/SKILL.md) diagnoses package declarations, destinations and permission failures before escalating. It rules out stale tooling state first, such as duplicate Xcode windows on one workspace or a partial build product left by an interrupted build, and reconciles workspace resolution drift with a single resolve. It resolves dependencies when needed, verifies the smallest affected target and avoids routine resets, cleans and full app builds.
 
 Install:
 
