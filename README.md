@@ -47,7 +47,7 @@ npx --yes skills add https://github.com/demianturner/swift-skills --skill m23-ex
 Update:
 
 ```sh
-npx --yes skills update m23-extract-swift-module --project --yes
+npx --yes skills update m23-extract-swift-module --global --yes
 ```
 
 ## Avoid unnecessary detached tasks
