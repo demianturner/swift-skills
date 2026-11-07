@@ -91,18 +91,21 @@ SwiftPM has no "internal to a product" access level, so `package` is the closest
 
 ## Verify in this order
 
+Close the workspace in Xcode before editing the manifest. Editing a manifest while Xcode has the workspace open makes Xcode raise "modified by another application" and "open in another Xcode process" dialogs that wait for a click. Reopen the same workspace only after resolution finishes.
+
 ```sh
-# Only after a manifest change.
+# Only after a manifest change, with Xcode closed.
 xcodebuild -resolvePackageDependencies -project Example.xcodeproj -scheme Example
 
-# Build the affected package scheme, not the app.
+# Reopen the workspace on the developer's original scheme, then build the
+# affected package scheme, not the app.
 xcodebuild -scheme JournalDomain -destination 'platform=macOS,arch=arm64' build
 
 # Run the moved tests.
 xcodebuild -scheme JournalDomain -destination 'platform=macOS,arch=arm64' test
 ```
 
-Substitute the real scheme and a supported destination discovered from the current workspace. A successful build does not mean the tests ran, and vice versa. Do not follow success with a cleanup, reset, or full app build.
+Substitute the real scheme and a supported destination discovered from the current workspace. A successful build does not mean the tests ran, and vice versa. Do not follow success with a cleanup, reset, or full app build. Do not leave the workspace closed when the task ends.
 
 ## Common manifest failures
 

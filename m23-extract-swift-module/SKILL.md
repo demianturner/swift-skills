@@ -151,8 +151,28 @@ Repairs: merge sibling micro-modules into one capability module, delete pass-thr
 4. Add the target, its dependencies, its test target, and any resources in one change. See `references/package-manifest.md` for shape and failure modes.
 5. Move code without behaviour changes. Widen access only as the compiler demands. Keep small types with their relatives.
 6. Move the tests and import the new module. Delete duplicated helpers instead of copying them.
-7. If the manifest changed, resolve once, wait, then build the smallest affected scheme and run the moved tests.
+7. Close the workspace in Xcode before editing the manifest. Move the files while Xcode is closed, resolve dependencies once and wait for resolution to finish, then reopen the same workspace on the scheme the user was using and build the smallest affected scheme. See "Close, resolve, reopen" below.
 8. Report what moved, what became public and why, what remains duplicated, and which shims were added or removed. State any re-export or alias that survives and why it is permanent. Do not call the boundary validated without a successful build of the affected target.
+
+## Close, resolve, reopen
+
+Changing a package manifest while Xcode has the workspace open makes Xcode notice an external change. It then blocks the developer with modal dialogs, typically:
+
+- The workspace "has been modified by another application": keep the Xcode version or use the version on disk.
+- The workspace "appears to be open in another running Xcode process": open it anyway or cancel.
+
+Both dialogs wait for a click. An unattended run stalls at that point, and whichever button a returning developer chooses decides whether the package graph matches the files on disk. Do the package work in this order instead:
+
+1. Close the workspace in Xcode before writing any manifest. Use the IDE's own close command so unsaved editor changes are handled first; quit Xcode when no other project is open.
+2. Confirm no Xcode process still has the workspace open before writing manifests. On macOS, `pgrep -x Xcode` and the workspace's window list are enough. Do not use `killall Xcode` while other projects are open.
+3. Edit the manifest and move the files. Build or test only after resolution, so the workspace is not reopened mid-edit.
+4. Resolve dependencies once with the scheme the developer will use and wait for the command to finish. Resolution normally runs on the command line, because the Xcode integration's tools do not expose it. Follow `m23-resolve-xcode-package-state` when the manifest changed or resolution reports an error.
+5. Reopen the same workspace. Select the base app scheme the developer was using before the close, not a package scheme or a second window. If the previous scheme no longer exists, say which scheme you selected and why.
+6. Build the smallest affected target and run the moved tests when behaviour changed. Report what was closed, resolved, reopened, and built.
+
+When the user is away from the machine, perform steps 1–5 without waiting for confirmation. Tell the user what you closed and reopened in the final report. Do not leave the workspace closed when the task ends. If a close or reopen fails, report the exact command and the error rather than reopening a second window as a workaround.
+
+If the Xcode integration is available through an MCP bridge, use its workspace close and open actions so the developer's own window state is restored. A command-line `open` on the workspace is the fallback. Do not open the `.xcodeproj` instead of the `.xcworkspace`, and do not open a second copy while the first is still running.
 
 ## References
 
