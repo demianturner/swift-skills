@@ -174,6 +174,8 @@ When the user is away from the machine, perform steps 1–5 without waiting for 
 
 If the Xcode integration is available through an MCP bridge, use its workspace close and open actions so the developer's own window state is restored. A command-line `open` on the workspace is the fallback. Do not open the `.xcodeproj` instead of the `.xcworkspace`, and do not open a second copy while the first is still running.
 
+Reinstalling or updating this skill has the same problem in a milder form: `npx skills update <skill> --project` only finds project-level installs. These skills are installed at user level, so use `npx skills update <skill> --global --yes`.
+
 ## References
 
 - `references/package-manifest.md` — target declarations, resources, access control, verification commands, common manifest failures.
